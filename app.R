@@ -16,21 +16,24 @@ ui <- fluidPage(
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
-            h3("How To Use This App"),
-            p("This app generates data based on the parameter values you specify. It then shows what the patterns of stabilities would look like for increasingly long intervals. You can optionally upload a matrix of correlations (with the same number of waves as you specify in the app) and the app will plot these stabilities, too. You should upload a symmetric correlation matrix as a csv file, and the variables should be ordered by wave (e.g., X1, Y1, X2, Y2,...)"),
-            p("The model to the right shows the possible components you can include. If you include stable trait variance, state variance, and autoregressive variance, the data-generating model will be the STARTS model. You can specify variance components to be zero to fit reduced models (like the RI-CLPM or CLPM)."),
-            p("Also note that you can specify values for which the data are impossible to generate (e.g., high stability plus strong cross-lagged paths). I don't have good error checking for this yet, so if the page freezes, just reload and try diffrent values."),
-            "Source code is available here:", tags$a(href="https://github.com/rlucas11/compare-cor", target="_blank", "https://github.com/rlucas11/compare-cor"),
-            numericInput("w",
-                        "Number of Waves:",
-                        min = 2,
-                        max = 50,
-                        value = 10,
-                        width = "25%"),
-                        h3("Enter Data and Show Stabilities"),
+            h4("See below for instructions"),
+            fluidRow(
+                column(6, numericInput("w",
+                    "Number of Waves:",
+                    min = 2,
+                    max = 50,
+                    value = 10,
+                    width = "60%"
+                )),
+                column(4, actionButton(
+                    "update",
+                    "Update Stability"
+                ))
+            ),
+            h4("Enter Data (Optional)"),
             fileInput(
                 "file1",
-                "Choose CSV File (Optional)",
+                "Choose CSV File",
                 accept = c(
                     "text/csv",
                     "text/comma-separated-values, text/plain",
@@ -38,12 +41,8 @@ ui <- fluidPage(
                 ),
                 width = "50%"
             ),
-            actionButton(
-                "update",
-                "Show Stability Coefficients"
-            ),
             p(),
-            h3("Variances (Using STARTS Terminology)"),
+            h4("Variances (Using STARTS Terminology)"),
             h4("X Variable"),
             fluidRow(
                 column(4, numericInput("st_x",
@@ -78,7 +77,7 @@ ui <- fluidPage(
                                        min = 0,
                                        step = .05,
                                        value = 1))),
-            h3("Autoregressive Parameters"),
+            h4("Autoregressive Parameters"),
             fluidRow(
                 column(4, numericInput("stability_x",
                                        "Stability of X",
@@ -120,7 +119,12 @@ ui <- fluidPage(
                         max = 1,
                         step = .05,
                         value = .5))
-            )
+            ),
+            h4("How To Use This App"),
+            p("This app generates data based on the parameter values you specify. It then shows what the patterns of stabilities would look like for increasingly long intervals. You can optionally upload a matrix of correlations (with the same number of waves as you specify in the app) and the app will plot these stabilities, too. You should upload a symmetric correlation matrix as a csv file, and the variables should be ordered by wave (e.g., X1, Y1, X2, Y2,...)"),
+            p("The model to the right shows the possible components you can include. If you include stable trait variance, state variance, and autoregressive variance, the data-generating model will be the STARTS model. You can specify variance components to be zero to fit reduced models (like the RI-CLPM or CLPM)."),
+            p("Also note that you can specify values for which the data are impossible to generate (e.g., high stability plus strong cross-lagged paths). I don't have good error checking for this yet, so if the page freezes, just reload and try diffrent values."),
+            "Source code is available here:", tags$a(href="https://github.com/rlucas11/compare-cor", target="_blank", "https://github.com/rlucas11/compare-cor"),
         ),
 
         # Show data generating model and results
@@ -332,7 +336,7 @@ server <- function(input, output) {
         if (!is.null(inFile)) {
             userInput <- TRUE
             userCorMat <- as.matrix(read.csv(inFile$datapath))
-            userCors <- summarizeR(cor(userCorMat), 2)
+            userCors <- summarizeR(userCorMat, 2)
         } else {
             userInput <- FALSE
         }

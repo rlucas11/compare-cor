@@ -42,4 +42,5 @@ write.csv(out, "test.csv", row.names=FALSE)
 
 write.table(out, "test.csv", row.names = FALSE, col.names = FALSE)
 
-temp <- as.matrix(read.csv("test.csv"))
+temp <- as.matrix(read.csv("~/temp/ncors.csv"))
+summarizeR(temp, 2)
