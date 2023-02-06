@@ -43,37 +43,36 @@ ui <- fluidPage(
             ),
             p(),
             h4("Variances (Using STARTS Terminology)"),
-            h4("X Variable"),
             fluidRow(
                 column(4, numericInput("st_x",
-                                       "Stable Trait",
+                                       "X Stable Trait",
                                        min = 0,
                                        step = .05,
                                        value = 1)),
                 column(4, numericInput("ar_x",
-                                       "Autoregressive",
+                                       "X Autoregressive",
                                        min = 0,
                                        step = .05,
                                        value = 1)),
                 column(4, numericInput("state_x",
-                                       "State",
+                                       "X State",
                                        min = 0,
                                        step = .05,
                                        value = 1))),
             h4("Y Variable"),
             fluidRow(
                 column(4, numericInput("st_y",
-                                       "Stable Trait",
+                                       "Y Stable Trait",
                                        min = 0,
                                        step = .05,
                                        value = 1)),
                 column(4, numericInput("ar_y",
-                                       "Autoregressive",
+                                       "Y Autoregressive",
                                        min = 0,
                                        step = .05,
                                        value = 1)),
                 column(4, numericInput("state_y",
-                                       "State",
+                                       "Y State",
                                        min = 0,
                                        step = .05,
                                        value = 1))),
@@ -105,7 +104,7 @@ ui <- fluidPage(
                                        step = .05,
                                        value = .2))
             ),
-            h3("Correlations"),
+            h4("Correlations"),
             fluidRow(
                 column(4, numericInput("st_cor",
                                        "Correlation Between Stable Traits:",
@@ -124,7 +123,7 @@ ui <- fluidPage(
             p("This app generates data based on the parameter values you specify. It then shows what the patterns of stabilities would look like for increasingly long intervals. You can optionally upload a matrix of correlations (with the same number of waves as you specify in the app) and the app will plot these stabilities, too. You should upload a symmetric correlation matrix as a csv file, and the variables should be ordered by wave (e.g., X1, Y1, X2, Y2,...)"),
             p("The model to the right shows the possible components you can include. If you include stable trait variance, state variance, and autoregressive variance, the data-generating model will be the STARTS model. You can specify variance components to be zero to fit reduced models (like the RI-CLPM or CLPM)."),
             p("Also note that you can specify values for which the data are impossible to generate (e.g., high stability plus strong cross-lagged paths). I don't have good error checking for this yet, so if the page freezes, just reload and try diffrent values."),
-            "Source code is available here:", tags$a(href="https://github.com/rlucas11/compare-cor", target="_blank", "https://github.com/rlucas11/compare-cor"),
+            "Source code is available here:", tags$a(href="https://github.com/rlucas11/compare-cor", target="_blank", "https://github.com/rlucas11/compare-cor")
         ),
 
         # Show data generating model and results
@@ -132,7 +131,8 @@ ui <- fluidPage(
             grVizOutput('starts', width = "50%"),
             plotOutput(
                 outputId = "corPlot",
-                width="600px")
+                width="600px"
+            )
         )
     )
 )
