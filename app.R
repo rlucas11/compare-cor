@@ -133,7 +133,9 @@ ui <- fluidPage(
 
         # Show data generating model and results
         mainPanel(
+            h3("Specified Model"),
             grVizOutput('starts', width = "50%"),
+            h3("Stability Coefficients"),
             plotOutput(
                 outputId = "corPlot",
                 width="600px"
