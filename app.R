@@ -11,12 +11,12 @@ source("scripts/usefulFunctions.R")
 ui <- fluidPage(
 
     # Application title
-    titlePanel("Plotting Stabilities"),
+    titlePanel("Plotting Patterns of Stability"),
     
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
-            p("This app generates data based on the parameter values you specify. It then shows what the patterns of stabilities would look like for increasingly long intervals. You can also upload a correlation matrix for your own two-variable data to compare."),
+            p("This app generates data based on the parameter values you specify. It then shows what the patterns of stability would look like for increasingly long intervals. You can also upload a correlation matrix for your own two-variable data to compare."),
             numericInput("w",
                          "Number of Waves:",
                          min = 2,
@@ -40,14 +40,24 @@ ui <- fluidPage(
             helpText("You can optionally upload a matrix of correlations (with the same number of waves as you specify in the app) and the app will plot these stabilities, too. You should upload a symmetric correlation matrix as a csv file, and the variables should be ordered by wave (e.g., X1, Y1, X2, Y2,...)"),
             p(),
             h2("Specify The Data Generating Model"),
-            helpText("The model to the right shows the possible components you can include. If you include stable trait variance, state variance, and autoregressive variance, the data-generating model will be the STARTS model. You can specify variance components to be zero to fit reduced models (like the RI-CLPM or CLPM)."),
+            helpText("The model to the right shows the possible components you can include. If you include stable trait variance, state variance, and autoregressive variance, the data-generating model will be the STARTS model. You can specify variance components to be zero to fit reduced models (like the RI-CLPM or CLPM). Use the buttons below to select a default model that you can then modify. Also note that you can specify values for which the data are impossible to generate (e.g., high stability plus strong cross-lagged paths). If you get an error, just try adjusting the values you set."),
+            radioButtons(
+                "modelType",
+                "Initial Model Type",
+                choices = c("CLPM",
+                            "RI-CLPM",
+                            "STARTS",
+                            "ARTS",
+                            "Stable Trait"),
+                inline = TRUE
+                ),
             h4("Variances"),
             fluidRow(
                 column(4, numericInput("st_x",
                                        "X Stable Trait",
                                        min = 0,
                                        step = .05,
-                                       value = 1)),
+                                       value = 0)),
                 column(4, numericInput("ar_x",
                                        "X Autoregressive",
                                        min = 0,
@@ -57,13 +67,13 @@ ui <- fluidPage(
                                        "X State",
                                        min = 0,
                                        step = .05,
-                                       value = 1))),
+                                       value = 0))),
             fluidRow(
                 column(4, numericInput("st_y",
                                        "Y Stable Trait",
                                        min = 0,
                                        step = .05,
-                                       value = 1)),
+                                       value = 0)),
                 column(4, numericInput("ar_y",
                                        "Y Autoregressive",
                                        min = 0,
@@ -73,7 +83,7 @@ ui <- fluidPage(
                                        "Y State",
                                        min = 0,
                                        step = .05,
-                                       value = 1))),
+                                       value = 0))),
             h4("Autoregressive Parameters"),
             fluidRow(
                 column(4, numericInput("stability_x",
@@ -117,9 +127,8 @@ ui <- fluidPage(
                         step = .05,
                         value = .5))
             ),
-            h4("How To Use This App"),
-            p("Also note that you can specify values for which the data are impossible to generate (e.g., high stability plus strong cross-lagged paths). I don't have good error checking for this yet, so if the page freezes, just reload and try diffrent values."),
-            p("Source code is available here:", tags$a(href = "https://github.com/rlucas11/compare-cor", target = "_blank", "https://github.com/rlucas11/compare-cor"))
+            p("Source code is available here:", tags$a(href = "https://github.com/rlucas11/compare-cor", target = "_blank", "https://github.com/rlucas11/compare-cor")),
+            p("For a discussion of why these patterns of stability are important consider, see this preprint on the problems with the cross-lagged panel model: ", tags$a(href = "https://psyarxiv.com/pkec7/", target = "_blank", "https://psyarxiv.com/pkec7/"))
         ),
 
         # Show data generating model and results
@@ -135,6 +144,82 @@ ui <- fluidPage(
 
 # Draw STARTS Model
 server <- function(input, output) {
+    ## Get values depending on modelType selection
+    observe({
+        if (input$modelType == "CLPM") {
+            st_x <- 0
+            st_y <- 0
+            ar_x <- 1
+            ar_y <- 1
+            state_x <- 0
+            state_y <- 0
+        }
+        if (input$modelType == "RI-CLPM") {
+            st_x <- 1
+            st_y <- 1
+            ar_x <- 1
+            ar_y <- 1
+            state_x <- 0
+            state_y <- 0
+        }
+        if (input$modelType == "STARTS") {
+            st_x <- 1
+            st_y <- 1
+            ar_x <- 1
+            ar_y <- 1
+            state_x <- 1
+            state_y <- 1
+        }
+        if (input$modelType == "ARTS") {
+            st_x <- 0
+            st_y <- 0
+            ar_x <- 1
+            ar_y <- 1
+            state_x <- 1
+            state_y <- 1
+        }
+        if (input$modelType == "Stable Trait") {
+            st_x <- 1
+            st_y <- 1
+            ar_x <- 0
+            ar_y <- 0
+            state_x <- 1
+            state_y <- 1
+        }
+        updateNumericInput(
+            inputId = "st_x",
+            value = st_x
+        )
+        updateNumericInput(
+            inputId = "st_y",
+            value = st_y
+        )
+        updateNumericInput(
+            inputId = "ar_x",
+            value = ar_x
+        )
+        updateNumericInput(
+            inputId = "ar_y",
+            value = ar_y
+        )
+        updateNumericInput(
+            inputId = "state_x",
+            value = state_x
+        )
+        updateNumericInput(
+            inputId = "state_y",
+            value = state_y
+        )
+    })
+    ## Change color for missing elements
+    no_state_y <- reactive({
+        if(input$state_y==0) {
+            obj_color <- "style='invis'"
+        } else {
+            obj_color <- "style=''"
+            }
+    })
+    ## Change graphviz
     ## Change color for missing elements
     no_st_x <- reactive({
         if(input$st_x==0) {
@@ -154,14 +239,6 @@ server <- function(input, output) {
     ## Change color for missing elements
     no_state_x <- reactive({
         if(input$state_x==0) {
-            obj_color <- "style='invis'"
-        } else {
-            obj_color <- "style=''"
-            }
-    })
-    ## Change color for missing elements
-    no_state_y <- reactive({
-        if(input$state_y==0) {
             obj_color <- "style='invis'"
         } else {
             obj_color <- "style=''"
