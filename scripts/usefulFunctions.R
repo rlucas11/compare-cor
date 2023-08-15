@@ -20,6 +20,29 @@ summarizeR <- function(corMat, nvars=1) {
     return(averageRs)
 }
 
+summarizeLags <- function(corMat) {
+
+    averageRs <- matrix(nrow=(nrow(corMat)/2-1),
+                        ncol=2)
+
+    for (k in 1:2) {
+        for (i in 1:((nrow(corMat)/nvars)-1)) {
+            sumR <- 0
+            nValid <- 0
+            for (j in seq(1, (nrow(corMat)-nvars*i), by=nvars)) {
+                if(!is.na(corMat[(j+(i*nvars)+(k-1)), j+(k-1)])) {
+                    sumR <- sumR + corMat[(j+(i*nvars)+(k-1)), j+(k-1)]
+                    nValid <- nValid + 1
+                }
+                
+            }
+            averageRs[i,k] <- sumR/(nValid)
+        }
+    }
+    return(averageRs)
+}
+
+
 
 plotCors <- function(cors, user=FALSE) {
     cors <- as.data.frame(cors)
