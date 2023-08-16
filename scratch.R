@@ -25,6 +25,7 @@ data <- gen_starts(
 
 ## Reorder data for summarizeR
 data <- data[, paste0(c("x", "y"), rep(1:waves, each = 2))]
+corMat <- cor(data)
 cors <- summarizeR(cor(data), 2)
 plotCors(cors)
 
