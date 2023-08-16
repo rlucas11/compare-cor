@@ -139,10 +139,16 @@ ui <- fluidPage(
             plotOutput(
                 outputId = "corPlot",
                 width="600px"
+            ),
+            h3("Cross-Lagged Correlations"),
+            plotOutput(
+                outputId = "lagPlot",
+                width="600px"
             )
         )
     )
 )
+
 
 # Draw STARTS Model
 server <- function(input, output) {
@@ -439,7 +445,45 @@ server <- function(input, output) {
             cors <- cbind(cors, userCors)
         }
             plotCors(cors, user = userInput)
-        })
+    })
+
+    output$lagPlot <- renderPlot({
+        ## Check for and load user data
+        inFile <- input$file1
+        if (!is.null(inFile)) {
+            userInput <- TRUE
+            userCorMat <- as.matrix(read.csv(inFile$datapath))
+            userLags <- summarizeLags(userCorMat, 2)
+            nwaves <- ncol(userCorMat) / 2
+        } else {
+            userInput <- FALSE
+            nwaves <- input$w
+        }
+        data <- gen_starts(
+            n = 10000,
+            nwaves = nwaves, # Number of waves
+            ri_x = input$st_x, # Random intercept variance for X
+            ri_y = input$st_y, # Random intercept variance for Y
+            cor_i = input$st_cor, # Correlation between intercepts (as correlation)
+            x = input$ar_x, # AR variance for X
+            y = input$ar_y, # AR variance for Y
+            stab_x = input$stability_x, # Stability of X
+            stab_y = input$stability_y, # Stability of Y
+            yx = input$YonX, # Cross lag (Y regressed on X)
+            xy = input$XonY, # Cross lag (X regressed on Y)
+            cor_xy = input$ar_cor, # Correlation between X and Y (as correlation)
+            xr = input$state_x, # Measurement error for X
+            yr = input$state_y # Measurement error for Y
+        )
+        ## Reorder generated data for summarizeR
+        data <- data[, paste0(c("x", "y"), rep(1:nwaves, each = 2))]
+        lags <- summarizeLags(cor(data), 2)
+        if (!is.null(inFile)) {
+            lags <- cbind(lags, userLags)
+        }
+            plotCors(lags, user = userInput)
+    })
+    
 }
 
 
