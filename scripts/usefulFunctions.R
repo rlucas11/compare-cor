@@ -32,7 +32,6 @@ summarizeLags <- function(corMat, nvars=2) {
             for (j in seq(1, (nrow(corMat)-nvars*i), by=nvars)) {
                 rval <- (nvars-k) + ((i * nvars) - 1) + j + 1
                 cval <- j + k - 1
-                print(c(rval,cval))
                 if(!is.na(corMat[rval, cval])) {
                     sumR <- sumR + corMat[rval, cval]
                     nValid <- nValid + 1
