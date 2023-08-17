@@ -135,7 +135,7 @@ ui <- fluidPage(
         mainPanel(
             h3("Specified Model"),
             grVizOutput('starts', width = "50%"),
-            h3("Stability Coefficients"),
+            h3("Stability Correlations"),
             plotOutput(
                 outputId = "corPlot",
                 width="600px"
@@ -409,22 +409,11 @@ server <- function(input, output) {
 "
   )})
     
-    
-    output$corPlot <- renderPlot({
-        ## Check for and load user data
-        inFile <- input$file1
-        if (!is.null(inFile)) {
-            userInput <- TRUE
-            userCorMat <- as.matrix(read.csv(inFile$datapath))
-            userCors <- summarizeR(userCorMat, 2)
-            nwaves <- ncol(userCorMat) / 2
-        } else {
-            userInput <- FALSE
-            nwaves <- input$w
-        }
-        data <- gen_starts(
+
+    data <- reactive({
+        gen_starts(
             n = 10000,
-            nwaves = nwaves, # Number of waves
+            nwaves = input$w, # Number of waves
             ri_x = input$st_x, # Random intercept variance for X
             ri_y = input$st_y, # Random intercept variance for Y
             cor_i = input$st_cor, # Correlation between intercepts (as correlation)
@@ -438,8 +427,23 @@ server <- function(input, output) {
             xr = input$state_x, # Measurement error for X
             yr = input$state_y # Measurement error for Y
         )
+    })
+    
+
+    output$corPlot <- renderPlot({
+        ## Check for and load user data
+        inFile <- input$file1
+        if (!is.null(inFile)) {
+            userInput <- TRUE
+            userCorMat <- as.matrix(read.csv(inFile$datapath))
+            userCors <- summarizeR(userCorMat, 2)
+            nwaves <- ncol(userCorMat) / 2
+        } else {
+            userInput <- FALSE
+            nwaves <- input$w
+        }
         ## Reorder generated data for summarizeR
-        data <- data[, paste0(c("x", "y"), rep(1:nwaves, each = 2))]
+        data <- data()[, paste0(c("x", "y"), rep(1:nwaves, each = 2))]
         cors <- summarizeR(cor(data), 2)
         if (!is.null(inFile)) {
             cors <- cbind(cors, userCors)
@@ -460,6 +464,7 @@ server <- function(input, output) {
             nwaves <- input$w
         }
         ## Reorder generated data for summarizeR
+        data <- data()[, paste0(c("x", "y"), rep(1:nwaves, each = 2))]
         lags <- summarizeLags(cor(data), 2)
         if (!is.null(inFile)) {
             lags <- cbind(lags, userLags)
