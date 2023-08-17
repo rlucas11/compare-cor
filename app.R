@@ -459,24 +459,7 @@ server <- function(input, output) {
             userInput <- FALSE
             nwaves <- input$w
         }
-        data <- gen_starts(
-            n = 10000,
-            nwaves = nwaves, # Number of waves
-            ri_x = input$st_x, # Random intercept variance for X
-            ri_y = input$st_y, # Random intercept variance for Y
-            cor_i = input$st_cor, # Correlation between intercepts (as correlation)
-            x = input$ar_x, # AR variance for X
-            y = input$ar_y, # AR variance for Y
-            stab_x = input$stability_x, # Stability of X
-            stab_y = input$stability_y, # Stability of Y
-            yx = input$YonX, # Cross lag (Y regressed on X)
-            xy = input$XonY, # Cross lag (X regressed on Y)
-            cor_xy = input$ar_cor, # Correlation between X and Y (as correlation)
-            xr = input$state_x, # Measurement error for X
-            yr = input$state_y # Measurement error for Y
-        )
         ## Reorder generated data for summarizeR
-        data <- data[, paste0(c("x", "y"), rep(1:nwaves, each = 2))]
         lags <- summarizeLags(cor(data), 2)
         if (!is.null(inFile)) {
             lags <- cbind(lags, userLags)

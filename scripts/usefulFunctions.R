@@ -57,17 +57,34 @@ plotCors <- function(cors, user=FALSE) {
             "User Y"
         )
     }
-    cors <- cors %>%
-        mutate(lag=row_number()) %>%
-        pivot_longer(!lag)
-    minCor <- min(cors$value)
 
-    ggplot(aes(x=lag, y=value, group=name, color=name), data=cors) +
-        geom_line() +
-        geom_point() +
-        ylim(min(minCor,0), 1)
+    if (user == TRUE) {
+        cors <- cors %>%
+            mutate(lag=row_number()) %>%
+            pivot_longer(!lag,
+                         names_sep = " ",
+                         names_to = c("Source", "Variable"))
+        minCor <- min(cors$value)
+    } else {
+        cors <- cors %>%
+            mutate(lag=row_number()) %>%
+            pivot_longer(!lag,
+                         names_to = "Variable")
+        minCor <- min(cors$value)
+    }
+
+    if (user == TRUE) {
+        ggplot(aes(x=lag, y=value, linetype=Source, color=Variable), data=cors) +
+            geom_line() +
+            geom_point() +
+            ylim(min(minCor,0), 1)
+    } else {
+        ggplot(aes(x=lag, y=value, color=Variable), data=cors) +
+            geom_line() +
+            geom_point() +
+            ylim(min(minCor,0), 1)
+        }
 }
-
 
 arCor <- function(waves, a) {
   cors <- matrix(nrow = (waves - 1), ncol = 1)
