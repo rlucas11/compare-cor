@@ -24,7 +24,7 @@ ui <- fluidPage(
                          value = 10,
                          width = "30%"
                          ),
-            helpText("This option is ignored if you provide your own data. The number of waves will be set to the number of waves in the data that you provide"),
+            helpText("If you upload your own data, set this to the number of waves in your data or you will get an error message."),
             br(),
             h4("Enter Your Own Data (Optional)"),
             fileInput(
