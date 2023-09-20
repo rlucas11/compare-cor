@@ -24,7 +24,7 @@ ui <- fluidPage(
                          value = 10,
                          width = "30%"
                          ),
-            helpText("If you upload your own data, set this to the number of waves in your data or you will get an error message."),
+            helpText("If you upload your own data, this option will be ignored and the number of waves in your own data will be used."),
             br(),
             h4("Enter Your Own Data (Optional)"),
             fileInput(
@@ -127,7 +127,7 @@ ui <- fluidPage(
                         step = .05,
                         value = .5))
             ),
-            p("Source code is available here:", tags$a(href = "https://github.com/rlucas11/compare-cor", target = "_blank", "https://github.com/rlucas11/compare-cor")),
+            p("Source code is available here:", tags$a(href = "https://github.com/rlucas11/compare-cor", target = "_blank", "https://github.com/rlucas11/compare-cor"), ". If you encounter an error or have suggestions, please submit an issue on github."),
             p("For a discussion of why these patterns of stability are important consider, see this preprint on the problems with the cross-lagged panel model: ", tags$a(href = "https://psyarxiv.com/pkec7/", target = "_blank", "https://psyarxiv.com/pkec7/"))
         ),
 
@@ -411,9 +411,16 @@ server <- function(input, output) {
     
 
     data <- reactive({
+        inFile <- input$file1
+        if (!is.null(inFile)) {
+            userCorMat <- as.matrix(read.csv(inFile$datapath))
+            nwaves <- ncol(userCorMat) / 2
+        } else {
+            nwaves <- input$w
+        }
         gen_starts(
             n = 10000,
-            nwaves = input$w, # Number of waves
+            nwaves = nwaves, # Number of waves
             ri_x = input$st_x, # Random intercept variance for X
             ri_y = input$st_y, # Random intercept variance for Y
             cor_i = input$st_cor, # Correlation between intercepts (as correlation)

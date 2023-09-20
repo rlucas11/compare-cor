@@ -77,12 +77,14 @@ plotCors <- function(cors, user=FALSE) {
         ggplot(aes(x=lag, y=value, linetype=Source, color=Variable), data=cors) +
             geom_line() +
             geom_point() +
-            ylim(min(minCor,0), 1)
+            ylim(min(minCor,0), 1) +
+            scale_x_continuous(breaks = 1:nrow(cors))
     } else {
         ggplot(aes(x=lag, y=value, color=Variable), data=cors) +
             geom_line() +
             geom_point() +
-            ylim(min(minCor,0), 1)
+            ylim(min(minCor,0), 1) +
+            scale_x_continuous(breaks = 1:nrow(cors))
         }
 }
 
