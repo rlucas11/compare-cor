@@ -37,7 +37,7 @@ ui <- fluidPage(
                 ),
                 width = "50%"
             ),
-            helpText("You can optionally upload a matrix of correlations (with the same number of waves as you specify in the app) and the app will plot these stabilities, too. You should upload a symmetric correlation matrix as a csv file, and the variables should be ordered by wave (e.g., X1, Y1, X2, Y2,...)"),
+            helpText("You can optionally upload a matrix of correlations (with the same number of waves as you specify in the app) and the app will plot these stabilities, too. You should upload a symmetric correlation matrix as a csv file, and the variables should be ordered by wave (e.g., X1, Y1, X2, Y2,...). Include column names but no row names."),
             p(),
             h2("Specify The Data Generating Model"),
             helpText("The model to the right shows the possible components you can include. If you include stable trait variance, state variance, and autoregressive variance, the data-generating model will be the STARTS model. You can specify variance components to be zero to fit reduced models (like the RI-CLPM or CLPM). Use the buttons below to select a default model that you can then modify. Also note that you can specify values for which the data are impossible to generate (e.g., high stability plus strong cross-lagged paths). If you get an error, just try adjusting the values you set."),
